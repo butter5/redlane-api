@@ -13,6 +13,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seed feature flags first
+        $this->call([
+            FeatureFlagSeeder::class,
+        ]);
+
         // User::factory(10)->create();
 
         User::factory()->create([
