@@ -18,13 +18,46 @@ class FeatureFlagService
     /**
      * Check if a feature flag is active for a given user.
      *
+     * Checks in this order:
+     * 1. User-specific override (if user is provided)
+     * 2. Global setting (null scope)
+     * 3. Default value from feature definition
+     *
      * @param string $flag The feature flag key
      * @param User|null $user The user to check (null for global scope)
      * @return bool True if the feature is active, false otherwise
      */
     public function isActive(string $flag, ?User $user = null): bool
     {
-        return Feature::for($user)->active($flag);
+        // If checking for null (global), just check that scope
+        if ($user === null) {
+            return Feature::for(null)->active($flag);
+        }
+
+        // For a user, first check if there's a user-specific override
+        if ($this->hasUserOverride($flag, $user)) {
+            return Feature::for($user)->active($flag);
+        }
+
+        // No user-specific override, fall back to global setting
+        return Feature::for(null)->active($flag);
+    }
+
+    /**
+     * Check if a user has a specific override for a feature flag.
+     *
+     * @param string $flag The feature flag key
+     * @param User $user The user to check
+     * @return bool True if user has an override, false otherwise
+     */
+    protected function hasUserOverride(string $flag, User $user): bool
+    {
+        $scope = $user->getMorphClass().'|'.$user->getKey();
+        
+        return DB::table('features')
+            ->where('name', $flag)
+            ->where('scope', $scope)
+            ->exists();
     }
 
     /**
@@ -101,10 +134,10 @@ class FeatureFlagService
         foreach (Features::keys() as $flag) {
             $globalState = Feature::for(null)->active($flag);
             
-            // Count user-specific overrides
+            // Count user-specific overrides (exclude null scope which is __laravel_null)
             $userOverrides = DB::table('features')
                 ->where('name', $flag)
-                ->where('scope', '!=', 'default')
+                ->where('scope', '!=', '__laravel_null')
                 ->count();
             
             $stats[$flag] = [

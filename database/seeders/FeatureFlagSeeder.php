@@ -28,10 +28,16 @@ class FeatureFlagSeeder extends Seeder
         $defaults = Features::defaults();
 
         foreach ($defaults as $flag => $defaultValue) {
-            // Set global default for each feature
-            Feature::for(null)->activate($flag);
+            // Set global default for each feature based on its default value
+            if ($defaultValue) {
+                Feature::for(null)->activate($flag);
+            } else {
+                Feature::for(null)->deactivate($flag);
+            }
         }
 
-        $this->command->info('Feature flags seeded successfully.');
+        if ($this->command) {
+            $this->command->info('Feature flags seeded successfully.');
+        }
     }
 }

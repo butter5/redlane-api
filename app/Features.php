@@ -17,24 +17,18 @@ class Features
     /**
      * Define all feature flags for the application.
      *
+     * These definitions provide the default values when a feature flag
+     * has not been explicitly set in the database.
+     *
      * @return void
      */
     public static function define(): void
     {
-        // OCR Processing - Disabled by default
-        Feature::define('ocr_processing', fn (?User $user) => false);
+        $defaults = self::defaults();
 
-        // Multi-leg Trips - Disabled by default
-        Feature::define('multi_leg_trips', fn (?User $user) => false);
-
-        // Admin Dashboard - Enabled by default
-        Feature::define('admin_dashboard', fn (?User $user) => true);
-
-        // Declaration Export - Disabled by default
-        Feature::define('declaration_export', fn (?User $user) => false);
-
-        // Currency API Integration - Disabled by default
-        Feature::define('currency_api_integration', fn (?User $user) => false);
+        foreach ($defaults as $flag => $defaultValue) {
+            Feature::define($flag, fn (?User $user) => $defaultValue);
+        }
     }
 
     /**
