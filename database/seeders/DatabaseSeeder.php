@@ -13,8 +13,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed feature flags first
+        // Seed reference data first
         $this->call([
+            ReferenceDataSeeder::class,
             FeatureFlagSeeder::class,
         ]);
 
