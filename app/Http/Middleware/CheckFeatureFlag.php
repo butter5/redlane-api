@@ -29,10 +29,7 @@ class CheckFeatureFlag
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure $next
-     * @param string $flag The feature flag key to check
-     * @return Response
+     * @param  string  $flag  The feature flag key to check
      */
     public function handle(Request $request, Closure $next, string $flag): Response
     {

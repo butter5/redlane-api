@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\FeatureFlagService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 /**
  * Admin Feature Flag Controller
@@ -28,7 +27,6 @@ class FeatureFlagController extends Controller
      *
      * Returns all feature flags with their global state and number of user-specific overrides.
      *
-     * @return JsonResponse
      *
      * @response 200 {
      *   "data": {
@@ -62,8 +60,7 @@ class FeatureFlagController extends Controller
      * Enables or disables a feature flag at the global level.
      * This does not affect user-specific overrides.
      *
-     * @param string $key The feature flag key
-     * @return JsonResponse
+     * @param  string  $key  The feature flag key
      *
      * @response 200 {
      *   "data": {
@@ -85,7 +82,7 @@ class FeatureFlagController extends Controller
         }
 
         $currentState = $this->featureFlagService->isActive($key, null);
-        
+
         if ($currentState) {
             $this->featureFlagService->globalDisable($key);
             $newState = false;
@@ -109,9 +106,8 @@ class FeatureFlagController extends Controller
      * Creates a user-specific override that enables the feature for that user,
      * regardless of the global state.
      *
-     * @param string $key The feature flag key
-     * @param int $userId The user ID
-     * @return JsonResponse
+     * @param  string  $key  The feature flag key
+     * @param  int  $userId  The user ID
      *
      * @response 200 {
      *   "data": {
@@ -161,9 +157,8 @@ class FeatureFlagController extends Controller
      * Creates a user-specific override that disables the feature for that user,
      * regardless of the global state.
      *
-     * @param string $key The feature flag key
-     * @param int $userId The user ID
-     * @return JsonResponse
+     * @param  string  $key  The feature flag key
+     * @param  int  $userId  The user ID
      *
      * @response 200 {
      *   "data": {

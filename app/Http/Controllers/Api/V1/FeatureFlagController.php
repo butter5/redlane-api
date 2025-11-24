@@ -28,8 +28,6 @@ class FeatureFlagController extends Controller
      * Returns all available feature flags with their states for the current user.
      * Flags may be customized per-user or use the global default.
      *
-     * @param Request $request
-     * @return JsonResponse
      *
      * @response 200 {
      *   "data": {

@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\FeatureFlagController as AdminFeatureFlagController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\FeatureFlagController;
-use App\Http\Controllers\Api\V1\Admin\FeatureFlagController as AdminFeatureFlagController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

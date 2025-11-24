@@ -23,8 +23,8 @@ class FeatureFlagService
      * 2. Global setting (null scope)
      * 3. Default value from feature definition
      *
-     * @param string $flag The feature flag key
-     * @param User|null $user The user to check (null for global scope)
+     * @param  string  $flag  The feature flag key
+     * @param  User|null  $user  The user to check (null for global scope)
      * @return bool True if the feature is active, false otherwise
      */
     public function isActive(string $flag, ?User $user = null): bool
@@ -46,14 +46,14 @@ class FeatureFlagService
     /**
      * Check if a user has a specific override for a feature flag.
      *
-     * @param string $flag The feature flag key
-     * @param User $user The user to check
+     * @param  string  $flag  The feature flag key
+     * @param  User  $user  The user to check
      * @return bool True if user has an override, false otherwise
      */
     protected function hasUserOverride(string $flag, User $user): bool
     {
         $scope = $user->getMorphClass().'|'.$user->getKey();
-        
+
         return DB::table('features')
             ->where('name', $flag)
             ->where('scope', $scope)
@@ -63,7 +63,7 @@ class FeatureFlagService
     /**
      * Get all feature flags and their states for a given user.
      *
-     * @param User|null $user The user to check (null for global scope)
+     * @param  User|null  $user  The user to check (null for global scope)
      * @return array<string, bool> Array of feature flags with their states
      */
     public function allFlags(?User $user = null): array
@@ -72,15 +72,15 @@ class FeatureFlagService
         foreach (Features::keys() as $flag) {
             $flags[$flag] = $this->isActive($flag, $user);
         }
+
         return $flags;
     }
 
     /**
      * Enable a feature flag for a specific user.
      *
-     * @param string $flag The feature flag key
-     * @param User $user The user to enable the flag for
-     * @return void
+     * @param  string  $flag  The feature flag key
+     * @param  User  $user  The user to enable the flag for
      */
     public function enableForUser(string $flag, User $user): void
     {
@@ -90,9 +90,8 @@ class FeatureFlagService
     /**
      * Disable a feature flag for a specific user.
      *
-     * @param string $flag The feature flag key
-     * @param User $user The user to disable the flag for
-     * @return void
+     * @param  string  $flag  The feature flag key
+     * @param  User  $user  The user to disable the flag for
      */
     public function disableForUser(string $flag, User $user): void
     {
@@ -102,8 +101,7 @@ class FeatureFlagService
     /**
      * Enable a feature flag globally.
      *
-     * @param string $flag The feature flag key
-     * @return void
+     * @param  string  $flag  The feature flag key
      */
     public function globalEnable(string $flag): void
     {
@@ -113,8 +111,7 @@ class FeatureFlagService
     /**
      * Disable a feature flag globally.
      *
-     * @param string $flag The feature flag key
-     * @return void
+     * @param  string  $flag  The feature flag key
      */
     public function globalDisable(string $flag): void
     {
@@ -130,29 +127,29 @@ class FeatureFlagService
     public function getFlagStats(): array
     {
         $stats = [];
-        
+
         foreach (Features::keys() as $flag) {
             $globalState = Feature::for(null)->active($flag);
-            
+
             // Count user-specific overrides (exclude null scope which is __laravel_null)
             $userOverrides = DB::table('features')
                 ->where('name', $flag)
                 ->where('scope', '!=', '__laravel_null')
                 ->count();
-            
+
             $stats[$flag] = [
                 'global' => $globalState,
                 'user_overrides' => $userOverrides,
             ];
         }
-        
+
         return $stats;
     }
 
     /**
      * Check if a feature flag key is valid.
      *
-     * @param string $flag The feature flag key to validate
+     * @param  string  $flag  The feature flag key to validate
      * @return bool True if the flag exists, false otherwise
      */
     public function isValidFlag(string $flag): bool

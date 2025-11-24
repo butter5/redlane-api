@@ -3,7 +3,6 @@
 namespace App;
 
 use App\Models\User;
-use Illuminate\Support\Lottery;
 use Laravel\Pennant\Feature;
 
 /**
@@ -19,8 +18,6 @@ class Features
      *
      * These definitions provide the default values when a feature flag
      * has not been explicitly set in the database.
-     *
-     * @return void
      */
     public static function define(): void
     {
