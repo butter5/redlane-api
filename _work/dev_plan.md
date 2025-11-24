@@ -1,13 +1,13 @@
 # Development Plan - Laravel 11 Backend Initialization
 
 ## Project: Red Lane API
-## Phase: 0 - Project Initialization
-## Started: 2025-11-24
+## Phase: 1 - Authentication API Implementation
+## Updated: 2025-11-24
 
 ---
 
 ## Objective
-Initialize Laravel 11 backend project with Docker development environment, core dependencies, and proper project structure following TDD principles and Laravel 11 best practices.
+Implement complete user authentication system using Laravel Sanctum for API token-based authentication with email verification and password reset functionality.
 
 ---
 
@@ -16,29 +16,68 @@ Initialize Laravel 11 backend project with Docker development environment, core 
 ### Phase 0: Project Initialization ✅ COMPLETE
 **Goal:** Set up Laravel 11 with Docker environment and core packages
 
+**Status:** ✅ All tasks completed successfully
+
+---
+
+### Phase 1: Authentication API Implementation ✅ COMPLETE
+**Goal:** Implement full-featured authentication system with Laravel Sanctum
+
 **Tasks:**
-1. ✅ Create _work directory structure
-2. ✅ Initialize core documentation files
-3. ✅ Initialize Laravel 11 project
-4. ✅ Install core packages (Sanctum, Spatie Permissions, Pennant, Scribe)
-5. ✅ Configure Pest PHP for testing
-6. ✅ Configure Laravel Pint for code style
-7. ✅ Create Docker Compose with all services
-8. ✅ Create Dockerfile and Nginx config
-9. ✅ Create .env.example with documentation
-10. ✅ Write comprehensive README.md
-11. ✅ Test all services and acceptance criteria
+1. ✅ Update database schema for authentication
+   - Added first_name, last_name, phone to users table
+   - Added soft deletes support
+   - Published Sanctum personal_access_tokens migration
+   
+2. ✅ Create Form Request classes
+   - RegisterRequest - comprehensive validation
+   - LoginRequest - credential validation
+   - ForgotPasswordRequest - email validation
+   - ResetPasswordRequest - password reset validation
+
+3. ✅ Create AuthController with all endpoints
+   - POST /api/v1/auth/register - User registration
+   - POST /api/v1/auth/login - User login (with rate limiting)
+   - POST /api/v1/auth/logout - Token revocation
+   - POST /api/v1/auth/refresh - Token refresh
+   - GET /api/v1/auth/me - Get authenticated user
+   - POST /api/v1/auth/forgot-password - Send reset link
+   - POST /api/v1/auth/reset-password - Reset password
+   - GET /api/email/verify/{id}/{hash} - Email verification
+   - POST /api/v1/auth/email/resend - Resend verification
+
+4. ✅ Implement UserResource for API responses
+
+5. ✅ Configure Sanctum
+   - Token expiration: 24 hours (1440 minutes)
+   - Configurable via SANCTUM_EXPIRATION env variable
+
+6. ✅ Configure rate limiting
+   - Login endpoint: 5 attempts per minute per IP
+
+7. ✅ Update User model
+   - Implemented MustVerifyEmail
+   - Added HasApiTokens trait
+   - Added SoftDeletes trait
+   - Updated fillable fields
+
+8. ✅ Comprehensive TDD test suite (38 tests, 132 assertions)
+   - 11 registration tests (validation, success scenarios)
+   - 12 login tests (auth, verification, token management)
+   - 12 password reset tests (forgot & reset flows)
+   - 3 existing tests (health check, example tests)
 
 **Progress:**
-- [x] Working directory created
-- [x] Core documentation initialized
-- [x] Laravel 11 installed
-- [x] Core packages installed
-- [x] Pest configured
-- [x] Pint configured
-- [x] Docker environment configured
-- [x] Documentation completed
-- [x] All tests passing
+- [x] Database schema updated
+- [x] All Form Requests created
+- [x] AuthController fully implemented
+- [x] UserResource created
+- [x] Sanctum configured
+- [x] Rate limiting configured
+- [x] Email verification implemented
+- [x] All routes configured
+- [x] All tests passing (38 passed, 132 assertions)
+- [x] Code committed and pushed
 
 ---
 
@@ -46,60 +85,164 @@ Initialize Laravel 11 backend project with Docker development environment, core 
 
 ### Backend Framework
 - Laravel 11.x (Latest)
-- PHP 8.2+ (8.3 available in environment)
+- PHP 8.3
 
 ### Database
-- MySQL 8.0 (primary database)
+- MySQL 8.0 (primary database - production)
+- SQLite :memory: (testing)
 - Redis (cache and queue driver)
+
+### Authentication
+- Laravel Sanctum 4.2
+- API token-based authentication
+- Email verification support
+- Password reset functionality
 
 ### Development Tools
 - Docker & Docker Compose
-- Pest PHP (testing)
+- Pest PHP (testing framework)
 - Laravel Pint (code style)
 - Mailhog (email testing)
 - Nginx (web server)
 
 ### Core Packages
-- `laravel/sanctum` - API authentication
-- `spatie/laravel-permission` - Roles & permissions
-- `laravel/pennant` - Feature flags
-- `knuckleswtf/scribe` - API documentation
+- `laravel/sanctum` - API authentication ✅
+- `spatie/laravel-permission` - Roles & permissions (Phase 2)
+- `laravel/pennant` - Feature flags (Phase 2)
+- `knuckleswtf/scribe` - API documentation (Phase 2)
 
 ---
 
 ## Architecture Decisions
 
-### TDD Approach
+### TDD Approach ✅
 - Tests written before implementation
 - Pest PHP as testing framework
+- 38 tests covering all authentication flows
 - High coverage for business logic
-- E2E tests for all features
+- All edge cases tested
 
-### Database Design
-- 3.5 Normal Form compliance
-- Type/reference tables instead of enums
-- MySQL 8.0 for production compatibility
-- No SQLite for production
+### Security Features ✅
+- Bcrypt password hashing
+- API token hashing in database
+- Password reset token hashing
+- Email verification requirement
+- Rate limiting on login (5/min)
+- Sanctum token expiration (24 hours)
 
-### Docker Strategy
-- Separate services (PHP-FPM, MySQL, Redis, Mailhog, Nginx)
-- Volume mounts for local development
-- Environment-based configuration
-- Health checks for all services
+### API Design ✅
+- RESTful API endpoints
+- Consistent JSON response structure
+- Proper HTTP status codes
+- Comprehensive validation
+- Form Request classes for validation
+
+### Database Design ✅
+- Soft deletes on users table
+- Proper indexing (email unique)
+- Foreign keys for relationships
+- Following Laravel 11 conventions
+
+---
+
+## API Endpoints Summary
+
+### Public Endpoints (No Authentication)
+- `POST /api/v1/auth/register` - Register new user
+- `POST /api/v1/auth/login` - Login (rate limited: 5/min)
+- `POST /api/v1/auth/forgot-password` - Request password reset
+- `POST /api/v1/auth/reset-password` - Reset password with token
+
+### Protected Endpoints (Require Authentication)
+- `POST /api/v1/auth/logout` - Logout and revoke token
+- `POST /api/v1/auth/refresh` - Refresh access token
+- `GET /api/v1/auth/me` - Get authenticated user details
+- `POST /api/v1/auth/email/resend` - Resend verification email
+- `GET /api/email/verify/{id}/{hash}` - Verify email (signed URL)
+
+---
+
+## Test Coverage
+
+### Registration Tests (11 tests)
+- ✅ Successful registration with valid data
+- ✅ Email validation (required, format, unique)
+- ✅ Password validation (required, confirmed, min length)
+- ✅ First name validation (required)
+- ✅ Last name validation (required)
+- ✅ Phone validation (optional)
+- ✅ Verification email sent
+
+### Login Tests (12 tests)
+- ✅ Login with valid credentials
+- ✅ Login fails with invalid email/password
+- ✅ Email/password validation
+- ✅ Email verification requirement
+- ✅ Logout revokes token
+- ✅ Token refresh functionality
+- ✅ Get authenticated user details
+- ✅ Authentication requirement
+
+### Password Reset Tests (12 tests)
+- ✅ Forgot password request
+- ✅ Email validation
+- ✅ Security (non-existent email returns success)
+- ✅ Reset password with valid token
+- ✅ Reset validation (email, token, password)
+- ✅ Invalid token handling
+- ✅ Password confirmation matching
 
 ---
 
 ## Next Steps
-1. Initialize Laravel 11 project
-2. Set up Docker environment
-3. Install and configure all packages
-4. Create comprehensive documentation
-5. Validate all acceptance criteria
+
+### Phase 2: Roles & Permissions (Spatie)
+1. Set up Spatie Laravel Permission
+2. Create roles and permissions system
+3. Implement role-based access control
+4. Create admin user seeder
+5. Add role/permission tests
+
+### Phase 3: API Documentation
+1. Configure Scribe for API docs
+2. Add endpoint descriptions
+3. Generate API documentation
+4. Set up documentation endpoint
+
+### Phase 4: Feature Flags
+1. Configure Laravel Pennant
+2. Implement feature flag system
+3. Add feature flag middleware
+4. Create feature flag tests
 
 ---
 
 ## Notes
-- Following Laravel 11 best practices
-- Strict TDD methodology
-- Clean Architecture principles
-- SOLID principles throughout
+- ✅ All acceptance criteria met for Phase 1
+- ✅ Following Laravel 11 best practices
+- ✅ Strict TDD methodology applied
+- ✅ Clean Architecture principles followed
+- ✅ SOLID principles throughout
+- ✅ Comprehensive test coverage achieved
+- ✅ Security best practices implemented
+- ✅ Rate limiting configured
+- ✅ Email verification functional
+- ✅ Token expiration configurable
+
+---
+
+## Acceptance Criteria - Phase 1 ✅
+
+- [x] All endpoints return correct HTTP status codes
+- [x] Registration creates user and sends verification email
+- [x] Login returns valid Sanctum token
+- [x] Authenticated routes require valid token
+- [x] Logout invalidates token
+- [x] Password reset emails are sent
+- [x] All validation works correctly
+- [x] All tests pass (38 tests, 132 assertions)
+- [x] API responses follow consistent JSON structure
+- [x] Rate limiting: 5 attempts per minute for login
+- [x] Token expiration: 24 hours (configurable)
+- [x] Email verification required before full access
+- [x] Bcrypt password hashing
