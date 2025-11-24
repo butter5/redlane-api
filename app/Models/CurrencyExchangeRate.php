@@ -43,7 +43,8 @@ class CurrencyExchangeRate extends Model
     {
         $date = $date ?? now()->toDateString();
         
-        return $query->where('effective_date', '<=', $date)
+        // For SQLite compatibility, use DATE() function to extract date part
+        return $query->whereRaw('DATE(effective_date) <= ?', [$date])
             ->orderBy('effective_date', 'desc');
     }
 }
