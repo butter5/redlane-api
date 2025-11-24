@@ -357,6 +357,87 @@ curl -H "Authorization: Bearer your-token-here" \
      http://localhost:8000/api/user
 ```
 
+## Role-Based Access Control (RBAC)
+
+The API implements role-based access control using Spatie Laravel Permission package.
+
+### Roles
+
+The system has three built-in roles:
+
+- **admin** - Full system access with all permissions
+- **user** - Standard user with access to their own data only
+- **customs_officer** - Can view all declarations (future feature)
+
+### Permissions
+
+Granular permissions control specific actions:
+
+- `manage_duty_categories` - Create/update duty categories
+- `manage_currencies` - Manage currencies and exchange rates
+- `manage_users` - Manage user accounts
+- `view_all_declarations` - View all user declarations
+- `manage_feature_flags` - Control feature flags
+- `view_audit_logs` - Access audit logs
+
+### Default Admin Account
+
+After running seeders, a default admin account is created:
+
+```
+Email: admin@redlane.local
+Password: Admin123!
+```
+
+**⚠️ IMPORTANT:** Change this password immediately in production!
+
+### Using RBAC in Code
+
+```php
+// Check if user has a role
+if ($user->hasRole('admin')) {
+    // User is an admin
+}
+
+// Check if user has a permission
+if ($user->can('manage_users')) {
+    // User can manage users
+}
+
+// Assign role to user
+$user->assignRole('admin');
+
+// Give direct permission to user
+$user->givePermissionTo('view_audit_logs');
+```
+
+### Middleware Protection
+
+Two middleware are available to protect routes:
+
+```php
+// Require admin role
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    // Admin-only routes
+});
+
+// Require specific permission
+Route::middleware(['auth:sanctum', 'permission:manage_users'])->group(function () {
+    // Routes requiring the manage_users permission
+});
+```
+
+### Testing RBAC
+
+All RBAC functionality is thoroughly tested:
+
+```bash
+# Run RBAC tests
+./vendor/bin/pest tests/Feature/RBAC
+./vendor/bin/pest tests/Unit/Models/UserRoleTest.php
+./vendor/bin/pest tests/Unit/Seeders/RoleAndPermissionSeederTest.php
+```
+
 ## Contributing
 
 1. Create a feature branch from `main`
