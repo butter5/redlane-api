@@ -1,17 +1,17 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Password;
 
 uses(RefreshDatabase::class);
 
 test('user can request password reset', function () {
     Notification::fake();
-    
+
     $user = User::factory()->create([
         'email' => 'test@example.com',
     ]);
@@ -126,7 +126,7 @@ test('password reset requires matching password confirmation', function () {
     $user = User::factory()->create([
         'email' => 'test@example.com',
     ]);
-    
+
     $token = Password::createToken($user);
 
     $response = $this->postJson('/api/v1/auth/reset-password', [
@@ -162,7 +162,7 @@ test('password reset requires minimum password length', function () {
     $user = User::factory()->create([
         'email' => 'test@example.com',
     ]);
-    
+
     $token = Password::createToken($user);
 
     $response = $this->postJson('/api/v1/auth/reset-password', [

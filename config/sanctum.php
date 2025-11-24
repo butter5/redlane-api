@@ -49,7 +49,6 @@ return [
 
     'expiration' => env('SANCTUM_EXPIRATION', 1440), // 24 hours in minutes
 
-
     /*
     |--------------------------------------------------------------------------
     | Token Prefix

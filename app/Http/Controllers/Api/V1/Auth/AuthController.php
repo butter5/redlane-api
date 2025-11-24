@@ -46,13 +46,13 @@ class AuthController extends Controller
     {
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
                 'message' => 'Invalid credentials',
             ], 401);
         }
 
-        if (!$user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             return response()->json([
                 'message' => 'Email address is not verified',
             ], 403);
@@ -81,9 +81,9 @@ class AuthController extends Controller
     public function refresh(): JsonResponse
     {
         $user = Auth::user();
-        
+
         $user->currentAccessToken()->delete();
-        
+
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([

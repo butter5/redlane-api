@@ -3,7 +3,6 @@
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 Route::get('/health', function () {
     return response()->json([
@@ -21,12 +20,12 @@ Route::prefix('v1')->group(function () {
             ->middleware('throttle:auth');
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-        
+
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('/logout', [AuthController::class, 'logout']);
             Route::post('/refresh', [AuthController::class, 'refresh']);
             Route::get('/me', [AuthController::class, 'me']);
-            
+
             Route::post('/email/resend', [AuthController::class, 'resendVerification'])
                 ->name('verification.send');
         });

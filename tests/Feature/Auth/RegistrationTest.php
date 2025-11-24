@@ -1,16 +1,16 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Auth\Notifications\VerifyEmail;
 
 uses(RefreshDatabase::class);
 
 test('user can register with valid data', function () {
     Notification::fake();
-    
+
     $response = $this->postJson('/api/v1/auth/register', [
         'email' => 'test@example.com',
         'password' => 'Password123!',
@@ -46,7 +46,7 @@ test('user can register with valid data', function () {
 
     $user = User::where('email', 'test@example.com')->first();
     expect(Hash::check('Password123!', $user->password))->toBeTrue();
-    
+
     Notification::assertSentTo($user, VerifyEmail::class);
 });
 
@@ -173,7 +173,7 @@ test('registration works without phone', function () {
     ]);
 
     $response->assertStatus(201);
-    
+
     $this->assertDatabaseHas('users', [
         'email' => 'test@example.com',
         'phone' => null,
