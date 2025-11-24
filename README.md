@@ -109,6 +109,10 @@ docker compose exec app php artisan vendor:publish --provider="Laravel\Pennant\P
 Execute the full test suite with Pest:
 
 ```bash
+# Using composer script (recommended)
+docker compose exec app composer test
+
+# Or directly with Pest
 docker compose exec app ./vendor/bin/pest
 ```
 
@@ -121,6 +125,8 @@ docker compose exec app ./vendor/bin/pest tests/Feature/ExampleTest.php
 Run tests with coverage:
 
 ```bash
+docker compose exec app composer test:coverage
+# Or
 docker compose exec app ./vendor/bin/pest --coverage
 ```
 
@@ -129,12 +135,20 @@ docker compose exec app ./vendor/bin/pest --coverage
 Check code style with Laravel Pint:
 
 ```bash
+# Using composer script (recommended)
+docker compose exec app composer lint
+
+# Or directly with Pint
 docker compose exec app ./vendor/bin/pint --test
 ```
 
 Automatically fix code style issues:
 
 ```bash
+# Using composer script (recommended)
+docker compose exec app composer format
+
+# Or directly with Pint
 docker compose exec app ./vendor/bin/pint
 ```
 
