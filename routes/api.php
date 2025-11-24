@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\V1\Auth\AuthController;
+use App\Http\Controllers\Api\V1\FeatureFlagController;
+use App\Http\Controllers\Api\V1\Admin\FeatureFlagController as AdminFeatureFlagController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +31,19 @@ Route::prefix('v1')->group(function () {
             Route::post('/email/resend', [AuthController::class, 'resendVerification'])
                 ->name('verification.send');
         });
+    });
+
+    // Feature flags for authenticated users
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/feature-flags', [FeatureFlagController::class, 'index']);
+    });
+
+    // Admin feature flag management
+    Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+        Route::get('/feature-flags', [AdminFeatureFlagController::class, 'index']);
+        Route::post('/feature-flags/{key}/toggle', [AdminFeatureFlagController::class, 'toggle']);
+        Route::post('/feature-flags/{key}/users/{userId}', [AdminFeatureFlagController::class, 'enableForUser']);
+        Route::delete('/feature-flags/{key}/users/{userId}', [AdminFeatureFlagController::class, 'disableForUser']);
     });
 });
 
