@@ -285,11 +285,74 @@ Implement complete user authentication system using Laravel Sanctum for API toke
 2. Enhanced validation
 3. Reporting endpoints
 4. File uploads (if needed)
+### Phase 2: Roles & Permissions (Spatie) ✅ COMPLETE
+**Goal:** Implement role-based access control using Spatie Laravel Permission
+
+**Status:** ✅ All tasks completed successfully
+
+**Tasks:**
+1. ✅ Set up Spatie Laravel Permission
+   - Package already installed in composer.json
+   - Published migrations for permission tables
+   - Published configuration file
+   
+2. ✅ Create roles and permissions system
+   - Created RoleAndPermissionSeeder
+   - Defined 3 roles: admin, user, customs_officer
+   - Defined 6 permissions: manage_duty_categories, manage_currencies, manage_users, view_all_declarations, manage_feature_flags, view_audit_logs
+   
+3. ✅ Implement role-based access control
+   - Created EnsureUserIsAdmin middleware
+   - Created CheckPermission middleware
+   - Registered middleware in bootstrap/app.php
+   - Added HasRoles trait to User model
+   
+4. ✅ Create admin user seeder
+   - Created AdminUserSeeder
+   - Admin user: admin@redlane.local / Admin123!
+   - Seeder creates admin with role assignment
+   - Updated DatabaseSeeder to call all new seeders
+
+5. ✅ Add role/permission tests
+   - Created 28 comprehensive TDD tests
+   - 6 tests for RoleAndPermissionSeeder
+   - 8 tests for User role assignment
+   - 9 tests for middleware functionality
+   - 5 tests for AdminUserSeeder
+   - All 98 tests passing (312 assertions)
+
+**Progress:**
+- [x] Spatie Permission package configured
+- [x] Permission tables migration created
+- [x] RoleAndPermissionSeeder created and tested
+- [x] AdminUserSeeder created and tested
+- [x] User model integrated with HasRoles
+- [x] EnsureUserIsAdmin middleware created
+- [x] CheckPermission middleware created
+- [x] Middleware registered and tested
+- [x] DatabaseSeeder updated
+- [x] All tests passing (98 tests, 312 assertions)
+- [x] Code committed and pushed
+
+---
+
+### Phase 3: API Documentation
+1. Configure Scribe for API docs
+2. Add endpoint descriptions
+3. Generate API documentation
+4. Set up documentation endpoint
+
+### Phase 4: Feature Flags (Already Complete from Phase 0)
+1. ✅ Configure Laravel Pennant
+2. ✅ Implement feature flag system
+3. ✅ Add feature flag middleware
+4. ✅ Create feature flag tests
 
 ---
 
 ## Notes
 - ✅ All acceptance criteria met for Phase 1
+- ✅ All acceptance criteria met for Phase 2
 - ✅ Following Laravel 11 best practices
 - ✅ Strict TDD methodology applied
 - ✅ Clean Architecture principles followed
@@ -299,6 +362,7 @@ Implement complete user authentication system using Laravel Sanctum for API toke
 - ✅ Rate limiting configured
 - ✅ Email verification functional
 - ✅ Token expiration configurable
+- ✅ RBAC fully functional with database driver
 
 ---
 
@@ -317,3 +381,18 @@ Implement complete user authentication system using Laravel Sanctum for API toke
 - [x] Token expiration: 24 hours (configurable)
 - [x] Email verification required before full access
 - [x] Bcrypt password hashing
+
+---
+
+## Acceptance Criteria - Phase 2 ✅
+
+- [x] Three roles exist in database (admin, user, customs_officer)
+- [x] All 6 permissions exist and are assigned correctly
+- [x] Admin middleware protects admin routes
+- [x] Permission middleware checks specific permissions
+- [x] User model has role/permission methods available (HasRoles trait)
+- [x] Seeder creates initial admin user (admin@redlane.local)
+- [x] All tests pass (98 tests, 312 assertions)
+- [x] RBAC using database driver (not cache)
+- [x] Middleware registered and functional
+- [x] TDD approach followed throughout

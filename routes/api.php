@@ -68,7 +68,17 @@ Route::prefix('v1')->group(function () {
         Route::post('/feature-flags/{key}/toggle', [AdminFeatureFlagController::class, 'toggle']);
         Route::post('/feature-flags/{key}/users/{userId}', [AdminFeatureFlagController::class, 'enableForUser']);
         Route::delete('/feature-flags/{key}/users/{userId}', [AdminFeatureFlagController::class, 'disableForUser']);
+
+        // Test route for admin middleware (used in tests)
+        Route::get('/test-admin-access', function () {
+            return response()->json(['message' => 'Admin access granted']);
+        })->middleware('admin');
     });
+
+    // Test route for permission middleware (used in tests)
+    Route::get('/test-permission-access', function () {
+        return response()->json(['message' => 'Permission granted']);
+    })->middleware(['auth:sanctum', 'permission:manage_duty_categories']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
