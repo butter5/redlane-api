@@ -15,8 +15,6 @@ class ReferenceDataSeeder extends Seeder
             RelationshipTypeSeeder::class,
             CalculationMethodTypeSeeder::class,
             UnitTypeSeeder::class,
-            StatusTypeSeeder::class,
-            PurposeTypeSeeder::class,
         ]);
     }
 }
