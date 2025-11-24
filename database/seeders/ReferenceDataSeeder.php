@@ -15,6 +15,9 @@ class ReferenceDataSeeder extends Seeder
             RelationshipTypeSeeder::class,
             CalculationMethodTypeSeeder::class,
             UnitTypeSeeder::class,
+            CurrencySeeder::class,
+            DutyCategorySeeder::class,
+            ExchangeRateSeeder::class,
         ]);
     }
 }
