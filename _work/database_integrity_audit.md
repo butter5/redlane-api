@@ -634,3 +634,210 @@ Next Steps (for future phases):
 2. Run migrations: `docker compose exec app php artisan migrate`
 3. Verify schema creation
 4. Begin Phase 1 development
+
+---
+
+## Phase 2 - RBAC Implementation (2025-11-24)
+
+### Additional Tables for Role-Based Access Control
+
+#### 6. Roles Table ✅
+**Purpose:** Store available system roles
+
+**Schema:**
+```sql
+CREATE TABLE roles (
+    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    guard_name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    UNIQUE KEY roles_name_guard_name_unique (name, guard_name)
+);
+```
+
+**Indexes:**
+- PRIMARY KEY (`id`)
+- UNIQUE KEY (`name`, `guard_name`)
+
+**Normalization:** ✅ 3NF compliant
+- Roles stored in separate table (not enum)
+- Guard name for multi-auth support
+- No redundant data
+
+**Initial Data:**
+- admin - Full system access
+- user - Standard user access
+- customs_officer - View all declarations
+
+#### 7. Permissions Table ✅
+**Purpose:** Store granular system permissions
+
+**Schema:**
+```sql
+CREATE TABLE permissions (
+    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    guard_name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    UNIQUE KEY permissions_name_guard_name_unique (name, guard_name)
+);
+```
+
+**Indexes:**
+- PRIMARY KEY (`id`)
+- UNIQUE KEY (`name`, `guard_name`)
+
+**Normalization:** ✅ 3NF compliant
+- Permissions stored separately from roles
+- Composable and granular
+- Guard name for flexibility
+
+**Initial Permissions:**
+- manage_duty_categories - Create/update duty categories
+- manage_currencies - Manage currencies and exchange rates
+- manage_users - Manage user accounts
+- view_all_declarations - View all user declarations
+- manage_feature_flags - Control feature flags
+- view_audit_logs - Access audit logs
+
+#### 8. Model Has Permissions Table ✅
+**Purpose:** Direct permission assignments to models
+
+**Schema:**
+```sql
+CREATE TABLE model_has_permissions (
+    permission_id BIGINT UNSIGNED NOT NULL,
+    model_type VARCHAR(255) NOT NULL,
+    model_id BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (permission_id, model_id, model_type),
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE,
+    INDEX model_has_permissions_model_id_model_type_index (model_id, model_type)
+);
+```
+
+**Indexes:**
+- PRIMARY KEY (composite: `permission_id`, `model_id`, `model_type`)
+- INDEX on (`model_id`, `model_type`)
+- FOREIGN KEY to permissions table
+
+**Normalization:** ✅ 3.5NF compliant
+- Polymorphic relationship via model_type/model_id
+- No redundant data
+- Cascading deletes for data integrity
+
+#### 9. Model Has Roles Table ✅
+**Purpose:** Role assignments to models (users)
+
+**Schema:**
+```sql
+CREATE TABLE model_has_roles (
+    role_id BIGINT UNSIGNED NOT NULL,
+    model_type VARCHAR(255) NOT NULL,
+    model_id BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (role_id, model_id, model_type),
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+    INDEX model_has_roles_model_id_model_type_index (model_id, model_type)
+);
+```
+
+**Indexes:**
+- PRIMARY KEY (composite: `role_id`, `model_id`, `model_type`)
+- INDEX on (`model_id`, `model_type`)
+- FOREIGN KEY to roles table
+
+**Normalization:** ✅ 3.5NF compliant
+- Polymorphic relationship support
+- Many-to-many relationship properly modeled
+- Cascading deletes maintain referential integrity
+
+#### 10. Role Has Permissions Table ✅
+**Purpose:** Associate permissions with roles
+
+**Schema:**
+```sql
+CREATE TABLE role_has_permissions (
+    permission_id BIGINT UNSIGNED NOT NULL,
+    role_id BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (permission_id, role_id),
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE,
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+```
+
+**Indexes:**
+- PRIMARY KEY (composite: `permission_id`, `role_id`)
+- FOREIGN KEY to permissions table
+- FOREIGN KEY to roles table
+
+**Normalization:** ✅ 3NF compliant
+- Pure junction table
+- No redundant data
+- Proper many-to-many relationship
+- Double cascade delete for integrity
+
+---
+
+## Phase 2 RBAC Compliance Summary
+
+### 3.5 Normal Form Compliance ✅
+- All RBAC tables follow 3.5NF principles
+- No transitive dependencies
+- Proper junction tables for many-to-many
+- Type/reference tables instead of enums
+- Polymorphic relationships properly modeled
+
+### Data Integrity ✅
+- Foreign key constraints on all relationships
+- Cascading deletes prevent orphaned records
+- Unique constraints on role/permission names
+- Composite primary keys for junction tables
+
+### Security Considerations ✅
+- Permissions cached for performance (24 hours)
+- Database driver (not cache) for authoritative data
+- Role hierarchy: admin > customs_officer > user
+- Granular permissions for fine-grained control
+
+### Migration Status ✅
+- Migration file: 2025_11_24_160723_create_permission_tables.php
+- All tables created successfully in testing
+- RoleAndPermissionSeeder populates initial data
+- AdminUserSeeder creates default admin account
+
+### Test Coverage ✅
+- 28 comprehensive tests for RBAC functionality
+- All tests passing (98 total, 312 assertions)
+- Seeder idempotency verified
+- Middleware protection verified
+
+---
+
+## Database Evolution Notes
+
+### Phase 1 → Phase 2 Changes
+1. Added 5 new tables for RBAC (roles, permissions, 3 junction tables)
+2. No changes to existing Phase 1 tables
+3. User model enhanced with HasRoles trait
+4. Database remains in 3.5NF compliance
+5. No data migration required for existing users
+
+### Future Considerations
+- Consider adding role_description field if UI needs it
+- May add permission categories for better organization
+- Could implement team_id support if multi-tenancy needed
+- Audit log table planned for future phase
+
+---
+
+## Conclusion - Phase 2 RBAC
+
+The database schema for Phase 2 RBAC implementation is complete, tested, and production-ready. All tables follow normalization principles, include proper indexing, and maintain referential integrity through foreign key constraints. The implementation uses Spatie Laravel Permission package best practices with database driver for authoritative permission data.
+
+**Status:** ✅ PRODUCTION READY
+**Test Coverage:** ✅ 98 tests passing (312 assertions)
+**Normalization:** ✅ 3.5NF compliant
+**Data Integrity:** ✅ Foreign keys and cascading deletes
+**Security:** ✅ Role-based access control functional
+

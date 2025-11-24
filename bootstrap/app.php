@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\CheckFeatureFlag;
+use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -22,6 +24,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'feature' => CheckFeatureFlag::class,
+            'admin' => EnsureUserIsAdmin::class,
+            'permission' => CheckPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
